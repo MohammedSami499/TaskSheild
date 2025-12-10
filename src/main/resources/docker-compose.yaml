@@ -12,7 +12,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d  # Optional: for initial data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U taskshield_user"]
       interval: 10s
@@ -28,17 +27,20 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes --requirepass RedisPassword123
 
-  # Optional: For monitoring (you can add later)
-  # adminer:
-  #   image: adminer:latest
-  #   container_name: taskshield-adminer
-  #   ports:
-  #     - "8081:8080"
-  #   depends_on:
-  #     - postgres
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: taskshield-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@taskshield.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
-    driver: local
   redis_data:
-    driver: local
+  pgadmin_data:
